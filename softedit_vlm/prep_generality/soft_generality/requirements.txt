@@ -1,0 +1,26 @@
+# Soft-generality image editing (dedicated env; do not install into reasonedit)
+#
+# Install torch first (CUDA 12.8 example):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+#
+# Then:
+#   pip install -r soft_generality/requirements.txt
+
+# Both Qwen-Image-Edit-2511 and FLUX.2-klein need git diffusers
+diffusers @ git+https://github.com/huggingface/diffusers.git
+transformers>=4.51.0
+accelerate>=0.33.0
+huggingface-hub>=0.30.0
+safetensors>=0.4.3
+sentencepiece>=0.2.0
+protobuf>=5.0.0
+
+# Data / notebook
+pandas>=2.0.0
+pyarrow>=14.0.0
+pillow>=10.0.0
+numpy>=1.26.0
+matplotlib>=3.8.0
+ipywidgets>=8.0.0
+tqdm>=4.66.0
+ipykernel>=6.0.0

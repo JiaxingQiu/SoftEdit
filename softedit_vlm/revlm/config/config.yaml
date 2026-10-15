@@ -1,0 +1,33 @@
+# Default configuration for VLM editing experiments
+
+# Global settings
+batch_size: 1
+n_iter: 100
+max_n_edits: 5000
+max_new_tokens: 100
+seed: 42
+device: cuda
+ckpt_dir: null
+dropout: null
+
+# Backbone VLM Model configuration
+model:
+  name: "llava-hf/llava-1.5-7b-hf"  # "qwen3", "qwen3_4b", "llava", "blip"
+  class_name: VQAModel
+  pt: null
+  inner_params: []
+  processor_class: null
+  tokenizer_class: null
+
+# Editor configuration 
+editor: ft
+
+# Experiment/dataset configuration
+experiment:
+  task: multiqa  # Options: multiqa, qa
+  dataset_name: "vqav2"
+  pred_by: "label"  # For multiqa: "label" (top-1 prediction)
+  label_strategy: "text"  # Single-QA label parsing: "text" (free-text answer) | "prob" (argmax over support_prob)
+  split: "all"
+  suffix: ""
+

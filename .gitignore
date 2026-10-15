@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Results / artifacts
+results/
+ckpts/
+jobs/
+wandb/
+
+# Large data (parquet / generated sets kept as artifacts, not in git by default)
+data/
+tmp/
+
+# HF / caches
+hf_cache/
+.cache/
+cache/
+prelim/
+notebooks/*
+!notebooks/main_table.ipynb
+
+# Notes and figures
+*.png
+*.pdf
+*.ipynb
+!notebooks/main_table.ipynb
+
+# Env
+.env
+*.local
+
+ssh
+WORKBOOK.md

@@ -1,0 +1,31 @@
+# Default configuration for LLM editing experiments (rankedit_llm)
+
+# Global settings
+batch_size: 1
+n_iter: 100
+max_n_edits: 5000
+max_new_tokens: 32          # ProtoQA answers are short phrases
+seed: 42
+device: cuda
+ckpt_dir: null
+dropout: null
+
+# Backbone LLM configuration
+model:
+  name: "Qwen/Qwen2.5-7B-Instruct"   # short names: phi, qwen, llama, mistral
+  class_name: TQAModel
+  pt: null
+  inner_params: []
+  tokenizer_class: null
+
+# Editor configuration
+editor: ft
+
+# Experiment/dataset configuration
+experiment:
+  task: qa                  # text QA (task engineers land in Stage 3)
+  dataset_name: "protoqa"
+  pred_by: "label"          # top-1 prediction
+  label_strategy: "text"    # "text" (free-text answer) | "prob" (argmax over support_prob)
+  split: "all"
+  suffix: ""
