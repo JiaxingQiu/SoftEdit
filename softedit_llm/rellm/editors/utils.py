@@ -130,6 +130,34 @@ def validate_and_correct_param_name(model, param_name, logger=None):
     if param_name in model_params:
         return param_name
 
+    # Exact-suffix match: handles wrapper/prefix differences (e.g. a live
+    # PeftModel prefixes every param with 'base_model.model.') while PRESERVING
+    # the layer index and container (transformer vs global_transformer).
+    suffix_matches = [n for n in model_params if n == param_name or n.endswith("." + param_name)]
+    if suffix_matches:
+        corrected = sorted(suffix_matches, key=len)[0]
+        msg = f"  Suffix-matched layer: {corrected}"
+        logger.info(msg) if logger else print(msg)
+        return corrected
+
+    # PeftModel suffix match: LoRA-targeted params are renamed from
+    # e.g. ``gate_proj.weight`` → ``gate_proj.base_layer.weight``.
+    # Strip ``.base_layer`` from candidate names before comparing suffixes
+    # so the original yaml name still matches the correct layer index.
+    peft_matches = []
+    for n in model_params:
+        n_stripped = n.replace(".base_layer.", ".")
+        if n_stripped == param_name or n_stripped.endswith("." + param_name):
+            peft_matches.append(n)
+    if peft_matches:
+        corrected = sorted(peft_matches, key=len)[0]
+        msg = f"  Suffix-matched layer (PeftModel .base_layer): {corrected}"
+        logger.info(msg) if logger else print(msg)
+        return corrected
+
+    # Index-aware fuzzy matching: preserves ALL numeric parts (layer indices)
+    # from the original param_name so we don't accidentally pick layer 0
+    # when layer 30 was requested.
     log_msg = f"Parameter '{param_name}' not found in model. Attempting to find match..."
     if logger:
         logger.warning(log_msg)
@@ -137,11 +165,26 @@ def validate_and_correct_param_name(model, param_name, logger=None):
         print(f"WARNING: {log_msg}")
 
     layer_parts = param_name.split('.')
+
+    # Extract numeric indices and their preceding container name so we can
+    # require e.g. "layers" + "30" to appear adjacently in the candidate.
+    index_pairs = []
+    for i, part in enumerate(layer_parts):
+        if part.isdigit() and i > 0:
+            index_pairs.append((layer_parts[i - 1], part))
+
     key_parts = [p for p in layer_parts if p and not p.isdigit()]
 
     if len(key_parts) >= 3:
         matches = [n for n in model_params.keys()
                    if all(part.lower() in n.lower() for part in key_parts[-3:])]
+        # Narrow to candidates containing every (container.index) pair so
+        # that e.g. "layers.30" is required, not just "layers".
+        if matches and index_pairs:
+            narrowed = [n for n in matches
+                        if all(f"{container}.{idx}" in n for container, idx in index_pairs)]
+            if narrowed:
+                matches = narrowed
         if matches:
             corrected = matches[0]
             log_msg = f"  Found corrected layer: {corrected}"
