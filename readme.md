@@ -1,6 +1,6 @@
 ## SoftEdit: One-Shot Calibration via Model Editing
 
-*Under construction until acceptance.*
+*Under construction before publication.*
 
 > [[Dataset]](https://huggingface.co/datasets/JJoy333/RankedVQA)
 
